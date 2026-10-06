@@ -1,0 +1,12 @@
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+.env
+dist/
+ml-service/artifacts/*.joblib
+ml-service/artifacts/*.json
+postgres_data/
+.DS_Store
+.env.*
+!.env.example
