@@ -1,0 +1,121 @@
+{
+  "available": true,
+  "model": "Random Forest",
+  "features": [
+    "traffic",
+    "active_users",
+    "cpu_usage",
+    "memory_usage",
+    "response_time",
+    "db_query_time",
+    "system_load"
+  ],
+  "classes": [
+    "NORMAL",
+    "WARNING",
+    "HIGH_LOAD"
+  ],
+  "dataset_rows": 900,
+  "training_rows": 720,
+  "testing_rows": 180,
+  "logistic_regression": {
+    "accuracy": 0.9889,
+    "precision_weighted": 0.989,
+    "recall_weighted": 0.9889,
+    "f1_weighted": 0.9889,
+    "confusion_matrix": [
+      [
+        75,
+        1,
+        0
+      ],
+      [
+        0,
+        46,
+        1
+      ],
+      [
+        0,
+        0,
+        57
+      ]
+    ]
+  },
+  "random_forest": {
+    "accuracy": 1.0,
+    "precision_weighted": 1.0,
+    "recall_weighted": 1.0,
+    "f1_weighted": 1.0,
+    "confusion_matrix": [
+      [
+        76,
+        0,
+        0
+      ],
+      [
+        0,
+        47,
+        0
+      ],
+      [
+        0,
+        0,
+        57
+      ]
+    ]
+  },
+  "selected_metrics": {
+    "accuracy": 1.0,
+    "precision_weighted": 1.0,
+    "recall_weighted": 1.0,
+    "f1_weighted": 1.0,
+    "confusion_matrix": [
+      [
+        76,
+        0,
+        0
+      ],
+      [
+        0,
+        47,
+        0
+      ],
+      [
+        0,
+        0,
+        57
+      ]
+    ]
+  },
+  "feature_importance": [
+    {
+      "feature": "traffic",
+      "importance": 0.24043
+    },
+    {
+      "feature": "active_users",
+      "importance": 0.19064
+    },
+    {
+      "feature": "response_time",
+      "importance": 0.18857
+    },
+    {
+      "feature": "db_query_time",
+      "importance": 0.15663
+    },
+    {
+      "feature": "system_load",
+      "importance": 0.13024
+    },
+    {
+      "feature": "cpu_usage",
+      "importance": 0.0667
+    },
+    {
+      "feature": "memory_usage",
+      "importance": 0.02679
+    }
+  ],
+  "label_method": "Derived operational pressure: 30% CPU + 15% memory + 35% response-time score + 20% DB latency score; >=72 HIGH_LOAD, >=48 WARNING."
+}
