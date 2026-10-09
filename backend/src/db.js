@@ -1,3 +1,4 @@
+js
 import dotenv from "dotenv";
 import path from "path";
 import pg from "pg";
@@ -22,15 +23,12 @@ const pool = new Pool({
     connectionString && !/localhost|127\.0\.0\.1/.test(connectionString)
       ? { rejectUnauthorized: false }
       : false,
-
   max: Number(process.env.DB_POOL_MAX || 3),
   min: 0,
-
   idleTimeoutMillis: 10000,
   connectionTimeoutMillis: 30000,
-
   keepAlive: true,
-  keepAliveInitialDelayMillis: 10000,
+  keepAliveInitialDelayMillis: 10000
 });
 
 pool.on("error", (err) => {
@@ -75,13 +73,24 @@ async function initDb() {
       cache_enabled BOOLEAN NOT NULL DEFAULT FALSE,
       result_limit INTEGER NOT NULL DEFAULT 100,
       analytics_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+      simulation_profile VARCHAR(32) NOT NULL DEFAULT 'normal',
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
-    INSERT INTO app_config
-      (id, cache_enabled, result_limit, analytics_enabled)
-    VALUES
-      (1, FALSE, 100, TRUE)
+    INSERT INTO app_config (
+      id,
+      cache_enabled,
+      result_limit,
+      analytics_enabled,
+      simulation_profile
+    )
+    VALUES (
+      1,
+      FALSE,
+      100,
+      TRUE,
+      'normal'
+    )
     ON CONFLICT (id) DO NOTHING;
 
     CREATE INDEX IF NOT EXISTS idx_metrics_created_at
@@ -95,11 +104,15 @@ async function initDb() {
 }
 
 async function getConfig() {
-  const { rows } = await pool.query(
-    `SELECT cache_enabled, result_limit, analytics_enabled
-     FROM app_config
-     WHERE id = 1`
-  );
+  const { rows } = await pool.query(`
+    SELECT
+      cache_enabled,
+      result_limit,
+      analytics_enabled,
+      simulation_profile
+    FROM app_config
+    WHERE id = 1
+  `);
 
   return rows[0];
 }
@@ -107,20 +120,53 @@ async function getConfig() {
 async function setConfig({
   cache_enabled,
   result_limit,
-  analytics_enabled,
+  analytics_enabled
 }) {
   const { rows } = await pool.query(
-    `UPDATE app_config
-     SET cache_enabled = $1,
-         result_limit = $2,
-         analytics_enabled = $3,
-         updated_at = NOW()
-     WHERE id = 1
-     RETURNING cache_enabled, result_limit, analytics_enabled`,
-    [cache_enabled, result_limit, analytics_enabled]
+    `
+      UPDATE app_config
+      SET cache_enabled = $1,
+          result_limit = $2,
+          analytics_enabled = $3,
+          updated_at = NOW()
+      WHERE id = 1
+      RETURNING
+        cache_enabled,
+        result_limit,
+        analytics_enabled,
+        simulation_profile
+    `,
+    [
+      cache_enabled,
+      result_limit,
+      analytics_enabled
+    ]
   );
 
   return rows[0];
 }
 
-export { pool, query, initDb, getConfig, setConfig };
+async function setSimulationProfile(profile) {
+  const { rows } = await pool.query(
+    `
+      UPDATE app_config
+      SET simulation_profile = $1,
+          updated_at = NOW()
+      WHERE id = 1
+      RETURNING simulation_profile
+    `,
+    [profile]
+  );
+
+  return rows[0].simulation_profile;
+}
+
+export {
+  pool,
+  query,
+  initDb,
+  getConfig,
+  setConfig,
+  setSimulationProfile
+};
+
